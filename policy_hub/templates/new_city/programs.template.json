@@ -1,0 +1,67 @@
+{
+ "_填写说明": "money/review 型域通用模板。复制本文件到 policy_hub/domains/cities/<城市码小写>/<域英文>/programs.json 后逐条替换。铁律：每条必须有 id/city/domain/name/valid/result_type/depth/cond/amount/version/updated_at/source_doc（materials 与 guide_url 允许留空，但留空就意味着成品里这两列为空）；ID=城市码-域码-三位序号（如 XX-EMP-001，XX=城市码），全局唯一、删除留空洞不复用；金额单位为元、用阿拉伯数字；source_doc 与 sources 必须是官方文号加 *.gov.cn 链接，第三方只作线索、数字一律回官方核验；宁可不采也不编造，达不到 L4 就诚实降级并在 to_collect 写明缺口。\n\n★★ cond.applicant_kinds 写错＝这条政策永远匹配不出来。它必须列出「所有能申报的主体」，前端四张画像各自只认自己那一个值（引擎唯一例外：选「海外人才」时 person 也算命中）：  · 只有个人能领          → [\"person\"]  · 只有创业者能领        → [\"entrepreneur\"]  · 个人和创业者都能领    → [\"person\",\"entrepreneur\"]   ← 创业补贴最常见，别只写 person  · 单位/企业能领         → [\"unit\"]  · 单位和个人都能领      → [\"person\",\"unit\"]  · 只给留学/海外人才     → [\"overseas\"]  · 海外人才和个人都能领  → [\"person\",\"overseas\"]写漏一个主体，那张画像的客户就看不到这条政策，且界面上没有任何报错。",
+ "city": "XX",
+ "domain": "employment_startup",
+ "status": "active",
+ "programs": [
+  {
+   "id": "XX-EMP-001",
+   "city": "XX",
+   "domain": "employment_startup",
+   "sub_domain": "",
+   "name": "（事项名，照官方标准表述）",
+   "valid": "active",
+   "result_type": "money",
+   "approval_type": "approval",
+   "channel": "online",
+   "depth": "L4",
+   "ptype": "直接补贴",
+   "cond": {
+    "applicant_kinds": [
+     "person"
+    ],
+    "any_identities": [],
+    "must": [
+     {
+      "f": "示例字段_社保月数",
+      "op": ">=",
+      "v": 1,
+      "label": "（中文条件，照官方原文；没有条件的政策写空数组 must=[]）"
+     }
+    ]
+   },
+   "amount": {
+    "kind": "once",
+    "value": 0,
+    "text": "（金额规则照官方；可计算用 once/once_x_count/month_x_count/tiered_hire/range/per_year_x_count/percent_of_base，无法公式化用 kind=text 并写‘以官方为准’）"
+   },
+   "deadline": {
+    "type": "text",
+    "text": "（申报/办理时效，照官方）"
+   },
+   "materials": [
+    "（材料1，照官方材料清单逐条）"
+   ],
+   "guide_url": "https://（官方事项直达链接，必须 *.gov.cn）",
+   "windows": [
+    {
+     "name": "（经办机构）",
+     "address": "（官方地址）",
+     "phone": "（官方电话）",
+     "hours": "（办公时间）"
+    }
+   ],
+   "click_steps": [
+    "（在官方页面上的逐步操作路径）"
+   ],
+   "std_name": "（官方标准事项名称）",
+   "sources": [
+    "https://（*.gov.cn 政策原文，可多条，去重）"
+   ],
+   "to_collect": [],
+   "version": 1,
+   "updated_at": "YYYY-MM-DD",
+   "source_doc": "（官方文号 + 链接，必填、可追溯）"
+  }
+ ]
+}

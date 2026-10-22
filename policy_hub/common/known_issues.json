@@ -1,0 +1,15 @@
+{
+  "_doc": "已知问题台账（开源示例仓为空）：闸门/体检对存量问题只记账不阻断，只拦新增。",
+  "_generated_at": "2026-10-21",
+  "cross_city_main": [],
+  "cross_city_source": [],
+  "deadline_str": [],
+  "deadline_mode": [],
+  "missing_keys": [],
+  "content_mismatch": [],
+  "guide_url_shell": [],
+  "guide_url_review": [],
+  "link_dead": [],
+  "orphan_doc_url": [],
+  "sourcedoc_dup_docno": []
+}

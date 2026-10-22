@@ -1,0 +1,401 @@
+{
+  "version": "v1",
+  "city_code": {
+    "SZ": "深圳市",
+    "NN": "南宁市",
+    "QZ": "钦州市",
+    "DG": "东莞市",
+    "FS": "佛山市",
+    "GZ": "广州市",
+    "SU": "苏州市",
+    "ZH": "珠海市",
+    "ZS": "中山市",
+    "HZ": "惠州市",
+    "JM": "江门市",
+    "ZQ": "肇庆市",
+    "HG": "杭州市",
+    "NJ": "南京市",
+    "NB": "宁波市",
+    "WX": "无锡市",
+    "CH": "常州市",
+    "HF": "合肥市",
+    "JX": "嘉兴市",
+    "NT": "南通市",
+    "CD": "成都市",
+    "WH": "武汉市",
+    "CQ": "重庆市",
+    "QD": "青岛市",
+    "CS": "长沙市",
+    "XA": "西安市",
+    "ZZ": "郑州市",
+    "QU": "泉州市",
+    "WZ": "温州市",
+    "JN": "济南市",
+    "FZ": "福州市",
+    "SY": "沈阳市",
+    "KM": "昆明市",
+    "SJZ": "石家庄市",
+    "TY": "太原市",
+    "HHT": "呼和浩特市",
+    "CC": "长春市",
+    "HRB": "哈尔滨市",
+    "NC": "南昌市",
+    "HAK": "海口市",
+    "GY": "贵阳市",
+    "LS": "拉萨市",
+    "LZH": "兰州市",
+    "XN": "西宁市",
+    "YC": "银川市",
+    "WLMQ": "乌鲁木齐市",
+    "DL": "大连市",
+    "XM": "厦门市",
+    "BJ": "北京市",
+    "TJ": "天津市",
+    "SH": "上海市"
+  },
+  "_domain_enum_note": "★ 各域的**规范中文名**唯一真值源 = `pipeline/enum_map.json::domain`（本表只给「域 = 什么 + 形态」，供人读）；2026-10-17 C 项收敛前，域中文名在 app.py / export_pdf / build_rolling_watch / 前端三副本 / 本表共**五处**各写一份，措辞互不一致。",
+  "domain_enum": {
+    "employment_startup": "就业+创业补贴(money算钱型)",
+    "hukou": "落户(channel通道决策树型)",
+    "overseas": "人才引进-新引进/应届毕业生/留学回国/博士后(review叠加评审型)",
+    "enterprise_support": "企业用工扶持(稳岗返还/招用税收扣减,money算钱型)",
+    "housing": "人才安居住房(安居型商品房/配售型保障房/公租房,channel资格通道型)",
+    "tech_enterprise": "科技企业扶持(高企税收/研发加计/认定资助,money减税+review)",
+    "gba_tax": "大湾区境外高端/紧缺人才个税差额补贴(money)",
+    "inclusive_tax": "普惠税费减免(重点群体/退役士兵等税收扣减,money减税型)",
+    "vocational_training": "职业技能培训(工种目录×等级×金额,review凭证申报型)"
+  },
+  "city_code_note": "已登记城市见本表（数量随采集增长，**故此处不写死条数**）。易看反的码：HG=杭州市 / HZ=惠州市 / CH=常州市（三码含 H）；QU=泉州市 vs QZ=钦州市。读写前务必核对本表。注意 CH=常州属避让码（CZ 留给沧州），非全拼首字母。新增城市须登记到本表，并同步前端三处（CITY_FIELDS / CITY_NAMES / order，见《每日一城_城市队列与日更工作流.md》第四章）。",
+  "applicant_kind_enum": {
+    "person": "个人",
+    "unit": "用人单位",
+    "entrepreneur": "创业者",
+    "overseas": "海外人才(留学生/境外高端人才)"
+  },
+  "applicant_kinds_semantics": {
+    "定义": "cond.applicant_kinds = 受益主体 ∪ 申报主体（并集），不是二选一。引擎按 profile.kind ∈ applicant_kinds 过滤，不在其中的直接 skip。",
+    "典型写法": {
+      "受益人与申报人都是个人": [
+        "person"
+      ],
+      "受益人是个人、申报主体也可以是公司": [
+        "person",
+        "unit"
+      ],
+      "创业主体(个体户/小微创办人)自己申报": [
+        "entrepreneur"
+      ],
+      "单位自己申报自己享受": [
+        "unit"
+      ],
+      "海外/留学人才": [
+        "overseas"
+      ]
+    },
+    "硬约束1": "cond 引用的字段至少要能被其中一个主体采集到，否则该主体路径恒为'差一点'——即幽灵条件。可达性以 common/field_contract.json 为准。",
+    "硬约束2": "同一概念的字段全局只能有一个名字：单位侧缴社保月数=ent_ss_months，不得在创业主体侧另起 hire_ss_months。",
+    "校验": "gate_validate.py 第 9 项查枚举合法性，第 11 项查字段可达性，第 12 项查条件值类型。"
+  },
+  "result_type_enum": [
+    "money",
+    "channel",
+    "review"
+  ],
+  "approval_type_enum": [
+    "approval",
+    "planned",
+    "competition",
+    "review",
+    "auto"
+  ],
+  "approval_type_meaning": {
+    "approval": "核准兑现：符合即享，可给确定结论",
+    "planned": "统筹名额：有名额总量控制",
+    "competition": "排序竞争：如积分入户，只预估不承诺",
+    "review": "专家评审：只做资格预判与指引",
+    "auto": "免申即享：由经办机构主动比对拨付，无需主动申报"
+  },
+  "channel_enum": [
+    "online",
+    "window",
+    "mixed"
+  ],
+  "depth_enum": [
+    "L0",
+    "L1",
+    "L2",
+    "L3",
+    "L4"
+  ],
+  "depth_meaning": {
+    "L0": "仅有目录/知道有这项",
+    "L1": "条件可判(规则化)",
+    "L2": "可算钱/可定通道",
+    "L3": "带材料+官网入口+操作步骤",
+    "L4": "再带窗口地址电话+时效+核验日期"
+  },
+  "unified_profile": {
+    "_common": {
+      "kind": "person|unit|entrepreneur|overseas",
+      "identities": [],
+      "ent_types": [],
+      "contract_years": 0
+    },
+    "employment_startup_ext": [
+      "hire_employdiff_count",
+      "hire_grad2y_count",
+      "hire_veteran_within1y_count",
+      "hire_poverty_count",
+      "hire_trainee_count",
+      "hire_count",
+      "ent_ss_months",
+      "personal_ss_months",
+      "founder_ss_months",
+      "biz_reg_months",
+      "unemp_insurance_heads",
+      "weekly_hours",
+      "is_flexible_job",
+      "is_legal_rep",
+      "normal_operation",
+      "rent_months",
+      "works_at_smb",
+      "is_sz_student"
+    ],
+    "hukou_ext": [
+      "age",
+      "gender",
+      "education_level",
+      "is_full_time",
+      "is_fresh_grad",
+      "grad_years",
+      "never_received",
+      "title_level",
+      "skill_level",
+      "ss_years",
+      "in_shortage_catalog",
+      "has_skill_award",
+      "healthy",
+      "no_crime",
+      "has_sz_social_insurance",
+      "has_residence_permit",
+      "still_paying_ss",
+      "housing_own_years",
+      "housing_rent_years",
+      "housing_own_months",
+      "housing_rent_months",
+      "pension_or_medical_years",
+      "ss_months",
+      "ss_kinds_count",
+      "has_overseas_qualification",
+      "overseas_degree",
+      "visiting_scholar_1y",
+      "tax_legal_3y",
+      "tax_shareholder_3y",
+      "tax_iit_3y",
+      "tax_individual_3y",
+      "same_enterprise_3y",
+      "family_relation",
+      "has_sz_family_huji",
+      "spouse_separate_years",
+      "spouse_high_level",
+      "sz_huji_years"
+    ],
+    "overseas_ext": [
+      "overseas_degree_level",
+      "overseas_school_rank",
+      "return_date",
+      "has_overseas_qualification",
+      "founded_tech_company"
+    ],
+    "enterprise_support_ext": [
+      "ui_paid_months",
+      "ui_premium_lastyear",
+      "ent_scale",
+      "not_zombie",
+      "no_layoff",
+      "layoff_rate_ok",
+      "hire_keygroup_count",
+      "hire_veteran_count",
+      "pay_social_insurance",
+      "is_individual_business",
+      "self_keygroup_or_vet",
+      "staff_count",
+      "disabled_hire_count",
+      "apprentice_count",
+      "apprentice_level"
+    ],
+    "housing_ext": [
+      "has_sz_hukou",
+      "sz_social_years",
+      "no_self_house",
+      "no_transfer_3y",
+      "single_age_ok",
+      "no_housing_benefit",
+      "income_ok",
+      "is_family_household"
+    ],
+    "tech_enterprise_ext": [
+      "is_hnte",
+      "is_sme_tech",
+      "rd_expense",
+      "hnte_certified"
+    ],
+    "gba_tax_ext": [
+      "sz_work_days",
+      "pay_iit_sz",
+      "in_key_industry",
+      "is_high_end_talent",
+      "is_scarce_talent",
+      "no_crime_3y"
+    ]
+  },
+  "program_common_fields": {
+    "id": "全局唯一，规则见 contract.md",
+    "city": "城市码",
+    "domain": "政策域",
+    "sub_domain": "域内细分(可空)",
+    "name": "事项名",
+    "valid": "active|exited|renamed|merged|superseded",
+    "result_type": "money|channel|review",
+    "approval_type": "approval核准|planned统筹|competition排序竞争|review评审|auto免申即享",
+    "approval_detail": "人读补充：申领与拨付方式原文（如「先缴后补，人社审核拨付」），与 approval_type 分属两个维度",
+    "channel": "online线上|window窗口|mixed线上线下",
+    "channel_detail": "人读补充：线上线下具体平台/窗口名称，channel 的具体化",
+    "depth": "L0-L4",
+    "cond": "统一条件结构。★ **申报条件落在 7 类载体**，键集真值源 = 本文件 `cond_fields`，渲染唯一实现 = `pipeline/mappers.condition_items()`：applicant_kinds 适用主体（枚举，机器可判）｜must 硬性条件（逐条 AND）｜base_must 基础条件（与 must 同构）｜branches[] 择一分支（**组间 OR、组内 AND**）｜any_must 组内 OR｜manual_check 一整句人读条件｜score_rule / points_cutoff 积分规则与入围线｜any_identities 身份标签（机器筛选用，当前不渲染）。类型硬约束：op∈{>,>=,<,<=} 时 v 必须为数值；op=intersects 时 v 必须为字符串数组，且标签值必须存在于前端选项（详见 contract.md §4.3）",
+    "amount": "money型金额规则；channel/review型可空",
+    "district_awards": "区县/镇街配套对照：**市级政策记录内挂载**的下辖各区县对**同一事项**的差异化配套标准（市级统一标准见 amount，两者分工不重复）。与 §5「区级政策轻卡片」的区别：那些是**独立记录**（level=district）；本字段是市级记录内的挂载数组。契约见 district_awards_fields；闸门第 25 项；**可选字段**（空/缺/空数组一律放行）。渲染出口：B 端 Excel「区县配套对照」列 + 前端卡片「区县配套对照」区块；C 端 PDF 不渲染。",
+    "deadline": "时效规则对象{mode,text,cycle,trigger,within_months,expire,expire_text}，见 deadline_fields。硬约束：expire 严格 YYYY-MM-DD 或 null，人读说明一律放 expire_text（闸门第 13 项校验）",
+    "apply_window": "申报窗口期{start,end,batch,note}，见 apply_window_fields",
+    "materials": "材料清单",
+    "guide_url": "政策原文页（发文页）：载有文号的官方文件页。不是栏目/清单页，也不是办事指南。取值规则见 04-导出管线与成品规格 §2.1",
+    "apply_url": "办事入口：在线申报页 / 办事指南页（政务服务平台或部门网上办事大厅）。与 guide_url 角色不同，勿混填。此前 687/816 条有值却无契约定义",
+    "windows": "窗口(地址/电话/受理时间)",
+    "version": "整数，每次改+1",
+    "updated_at": "YYYY-MM-DD",
+    "source_doc": "来源文号 + 出处（可内嵌原文 URL）；必填、可追溯，是成品「政策依据」列的唯一来源",
+    "sources": "官方源 URL 数组（供 collector/build_sources.py 生成巡检白名单）",
+    "ptype": "政策奖补的**发放形式**（客户可见业务标签）。**取值受白名单约束**（闸门第 22 项）：簇① 归并后为 **31 值**（2026-10-09：53 → 31，逐簇依据见工作区 `36-ptype字段归并对照表.md`），新增值需同改白名单与对照表。判据三条：① 同一机制的不同写法合并（`税收优惠`/`所得税优惠` → `税收减免`）；② **不同机制不合并**（`个税差额补贴` 是境外人才个税税差的**财政补贴** ≠ `税收减免` 的税务少收）；③ 层级/对象/时效语义不进本字段（层级交 `level`，对象交 `cond`）。主体语义（unit/person/entrepreneur/policy/channel/mixed，原 413 条）已清除——该语义由 cond.applicant_kinds 承载。前端 client.html 用它做徽标与金额标签分支（`税收减免`→「税收减免额度：」等）。**不要**合并进 result_type（那是引擎求解方式 money|channel|review，维度不同）",
+    "ptype_detail": "`ptype` 的补充说明（人读长句）。**A+C 归并时新增（2026-10-09）**：把原先塞进 `ptype` 枚举里的长句修饰拆到这里（如 `拨给机构·个人免费` / `财政资金事后补助` / `历史政策，现行待接续`）。**可选字段**：闸门第 22 项只在「有值」时校验非空，空/缺键一律放行。前端可渲成「类型：培训补贴（拨给机构·个人免费）」",
+    "channel_type": "落户通道类型（hukou 域为主）。白名单：approval|competition|talent|fresh_grad|overseas|points|property|stable_residence|family|policy（闸门第 22 项）。⚠️ **不可删除**：policy_hub/engine/matcher.py 用它推导 approval_type（channel_type==competition→competition，否则 approval）；前端 client.html 用 competition 显示「排序竞争·不承诺结果」徽标。曾混杂脏值 approval_seconds（已归 approval）与 3 条与 approval_type 不一致（已统一为 competition）",
+    "window_type": "受理窗口归属枚举：公安派出所户籍窗口|人社部门窗口（闸门第 22 项白名单）。原为内部缩写 ps/rs/police/ga/lsj（无公开字典、且同义多写：rs/lsj=人社，ps/police/ga=公安）→ 已归一为中文；5 条中文长句迁 window_detail。前端不读，服务数据完整性与检索。（旧注释称 build_fs_data.py/add_mobile.py 依赖 —— 实测二者为无引用的历史脚本，已不成立）",
+    "window_detail": "window_type 的人读补充：窗口类型无法用枚举表达时的原文（如「线上：江苏人社厅网上办事服务大厅…；线下：迁入地镇（街道）积分落户窗口」）。由原 window_type 中文长句迁入",
+    "applicant_detail": "适用对象人读说明（长句）。与 cond.applicant_kinds（机器可判的枚举条件）分属两个维度、不得互相顶替；原字段名 applicant（81 条，hukou 域）已更名——避免与 applicant_kinds 混淆。前端「适用对象」行读此字段",
+    "where": "办理说明（人读）：受理窗口地点/网上办理方式的说明，如「广东政务服务网东莞分厅」。与 process（流程环节）、channel_detail（平台/窗口名称）分属不同层级。前端「办理说明」行",
+    "process": "流程环节概括（环节名序列），如「个税查询→账号注册→办理申请→受理审核→补贴发放」。与 how 分属两层级：process=环节名，how=操作路径详述（含表单号/平台/材料）。实测 165 条二者并存且 **0 条文本相同** → 不得合并。前端「流程」行",
+    "how": "操作路径详述：含具体表单编号、平台入口、材料清单，如「在 A100000 表勾选小型微利企业、A107040 表填报减免额」。与 process 分属两层级（见 process 定义）→ 不得合并。前端「办理路径」行",
+    "promise": "部门承诺时限/办理方式（**只装时间性承诺**），如「受理后 10 个工作日内核实上报」「当场办结」。与 notes 划界：promise=时限承诺，notes=政策口径/时效提醒。前端「标准/时限」与「时限/跑动」行",
+    "notes": "政策口径/时效提醒/新旧政策衔接（**非时限性**），如「广东省安排残疾人就业比例 1.5%，深圳 0.5%，不得跨市套用」。与 promise 划界：notes 不装承诺时限。前端「备注」行与卡片依据栏",
+    "level": "行政层级：district区级|city市级（未定义前 64 条裸值已补）",
+    "issuer": "发布主体（如「广东省人力资源和社会保障厅」）。**溯源元数据（F6 · 2026-10-09 新增）**：采集/核验时填入。存量 824 条为空 —— 按「禁止编数据」不硬补，属**可选**字段；闸门只在「有值」时校验格式（第 24 项）",
+    "fetched_at": "抓取/核验日期 YYYY-MM-DD。**溯源元数据（F6）**：采集或人工核验当天填入。可选，闸门只在有值时校验格式",
+    "doc_no": "规范化文号（如「演示规〔2026〕20号」；多个以「；」分隔）。**溯源元数据（F6）**：与 source_doc（人读整串、含出处）区分 —— 本字段只装文号本身，供机器检索/去重。可选，闸门只在有值时校验格式"
+  },
+  "link_field_roles": {
+    "_说明": "三个链接字段角色不同，采集/导出/核验前先读这里，避免「原文页放错位置」。",
+    "guide_url": "政策原文页（发文页）：载有文号的官方文件页。不是栏目/清单页，不是办事指南。",
+    "apply_url": "办事入口：在线申报页 / 办事指南页（政务服务平台或部门网上办事大厅）。",
+    "source_doc": "来源文号 + 出处（可内嵌原文 URL）；成品「政策依据」列的唯一来源。",
+    "sources": "官方源 URL 数组（build_sources.py 巡检白名单输入）。",
+    "同页兜底": "原文页与办事入口为同一页时，只填 guide_url，apply_url 留空（见 04 §2.1 C 级）。",
+    "常见错位": "① source_doc 填成「另一条政策的办事指南」；② guide_url 填成栏目/清单页（点进去看不到文号）；③ apply_url 填成政策原文页。",
+    "核验": "L3 页面归类 + L4 角色一致，见 policy_hub/链接核验运维手册.md"
+  },
+  "apply_window_fields": {
+    "start": "申报开始日期(YYYY-MM-DD；每年不固定、待当年通知填 to_collect)",
+    "end": "申报截止日期(YYYY-MM-DD；每年不固定、待当年通知填 to_collect)",
+    "batch": "常年受理|按季度|按批次|集中申报(年度通知)|分批(第一批/第二批)",
+    "note": "窗口期规律说明，具体以当年度官方申报通知为准"
+  },
+  "district_awards_fields": {
+    "_说明": "市级政策记录内的「区县/镇街配套对照」子结构。用于**同一事项在多个区县有差异化配套**时；若某区县的政策足以独立成条，按其自身 level=district 单独建档（§5），不要塞进本数组。",
+    "_闸门": "第 25 项：可选字段（空/缺/空数组一律放行）；非空时必须是数组、每项必须为对象，必填键非空、url 键必须存在（值可为空串）、键集合受白名单约束。",
+    "_渲染": "B 端 Excel「区县配套对照」列；前端卡片「区县配套对照」区块；C 端 PDF 不渲染（三条现有记录均为 tech_enterprise 企业专项，本就进不了只收个人/创业者的 C 端成品）。",
+    "_键集合": "district|code|first|renew|move_in|basis|url|note —— 与 gate_validate.DISTRICT_AWARD_KEYS 必须一致（断言 tests/test_district_awards.py D4 对撞）。",
+    "district": "区县/镇街名（**必填**，非空）",
+    "first": "首次认定/首次享受标准（**必填**，非空）",
+    "renew": "重新认定/再次享受标准（**必填**，非空）",
+    "basis": "依据文件名 + 条款（**必填**，非空）",
+    "url": "依据原文页（**必填键**，值可为空串；有值须 http(s)://。原文确未公开则留空，见技能 §5h）",
+    "code": "区县码（可选；仅采到全市区县全集时填，便于跨城对齐）",
+    "move_in": "迁入/新迁入口径（可选）",
+    "note": "该区特殊说明（可选）"
+  },
+  "cond_fields": {
+    "_说明": "`cond` 的**唯一键集声明** —— 本文件是 cond 契约真值源，`pipeline/mappers.condition_items()` 是渲染唯一实现。断言 `tests/test_contract_key_sync.py` 守「库内 cond 键 ⊆ 本键集」；新增载体必须**同时**改这里 + mappers + 断言（本项目因『契约与实现不同步』踩过多次：2026-10-12 前该处只声明 3 键，而库内实际 9 键 → 渲染层只读 must 漏掉 6 类载体，成品申报条件空 193 条）。",
+    "_渲染": "取值顺序与合并规则见 `mappers.condition_items()`：manual_check → must → base_must → any_must → branches（冠「满足以下任一类即可」）→ score_rule / points_cutoff。`any_identities` **不渲染**（实测 743 条有值、0 条单独承载条件，且城市码中文表未全覆盖 → 展开会印英文枚举，违反『成品无英文枚举』硬规则）。",
+    "applicant_kinds": "适用主体枚举数组（person|unit|entrepreneur|overseas|family 等，白名单见 applicant_kind_enum）。**受益主体 ∪ 申报主体并集**（2026-10-09 拍板）。引擎硬闸 = policy_hub/engine/matcher.py，前端 = #subjectSwitch。",
+    "must": "硬性条件数组，逐条 AND。每项 {f 前端字段名, op 比较符, v 值, label 人读文案}；闸门第 11 项校验 f 必须落在该城该身份的控件池内。",
+    "base_must": "基础条件数组，与 must **同构**。分支型政策把各分支共有的条件放这里，再在 branches 里列差异化部分。",
+    "branches": "择一分支数组，**组间 OR、组内 AND**。每项 {name 分支名, must:[…]}。渲染时必须冠以「满足以下任一类即可」—— 否则被读成「全都要」，**错读比空白更硬**。",
+    "any_must": "{label, conds:[{f,op,v,label}]}：组内 OR，整体与 must 之间是 AND。有整体 label 时优先用它，否则罗列 conds 的 label。",
+    "manual_check": "人读条件，**字符串或字符串数组**（数组 = 一条一个条件条目，语义更细）。**用于条件落不到前端字段的情况** —— 采集侧不得因「映射不到字段」就不抽（这正是 2026-10-12 申报条件空白的根因之一，见工作区 `61-` 报告）。★ 两种形态都合法且被 `mappers.condition_items()` 支持（2026-10-17 修：此前数组会被 `str(list)` 成 `['…']` 印进客户可见单元格，与 `str(None)` 同族；已加回归断言 `tests/test_condition_render.py`）。数组形态另使 `conditions_text(limit)` 按条计数，截断与「另有 N 项」提示更准。",
+    "score_rule": "{…} 积分规则，键集见 `score_rule_fields`；人读文本取其中的 `formula_note`。可选。",
+    "points_cutoff": "积分入围线（数值）。可选。",
+    "any_identities": "身份标签枚举数组（机器筛选用）。取值白名单 = `pipeline/enum_map.json` 的 `identity` 表；当前**不渲染**（理由见 `_渲染`）。"
+  },
+  "amount_fields": {
+    "_说明": "money 型金额规则对象。`kind` 是**形态枚举**，其余键按 kind 取用。渲染唯一实现 = `pipeline/mappers.amount_text()`；排序/筛选口径 = `mappers.amount_low_high()`；引擎计算 = `policy_hub/engine/matcher.py`。断言 `tests/test_contract_key_sync.py` 守「库内键 ⊆ 本键集」（2026-10-13 补声明：此前 15 个键**零契约声明**）。",
+    "kind": "形态枚举：once 一次性｜range 区间｜month_x_count 按月×人数｜once_x_count 一次性×人数｜per_year_x_count 按年×人数｜percent_of_base 按基数比例｜tiered_hire 按招用人数分档｜text 按文件规定｜none 非现金（资格通道 / 评审认定）",
+    "text": "人读完整表述。**有值时优先于按 kind 拼装**（原文口径比推算可靠）",
+    "value": "金额数值：once 型=一次性金额；month_x_count / once_x_count / per_year_x_count 型=单位金额（配合 per / months / count_field）",
+    "unit": "金额单位（元 / 万元），可空",
+    "min": "range 型下限",
+    "max": "range 型上限",
+    "per": "x_count 型的每人 / 每单位金额（实测 106 条）",
+    "count_field": "x_count 型：按 `unified_profile` 的哪个字段计数（如 hire_count），引擎 matcher.py 读",
+    "base_field": "percent_of_base 型：基数取自 profile 的哪个字段（如 ss_base）",
+    "ratio": "percent_of_base 型的返还比例（小数）",
+    "months": "计月型的月数上限（如 30 / 36，实测 9 条，均为 month_x_count）",
+    "first_n": "tiered_hire 型：首档人数 N（如 3）",
+    "first": "tiered_hire 型：首 N 人每人金额",
+    "rest": "tiered_hire 型：超出后每人金额",
+    "cap": "tiered_hire 型：累计金额上限"
+  },
+  "score_rule_fields": {
+    "_说明": "积分入户 / 积分入学的算分参数（hukou 域，实测 3 条）。**除 `formula_note` 外均为引擎侧输入字段名，不渲染。**断言 `tests/test_contract_key_sync.py` 守「库内键 ⊆ 本键集」。",
+    "formula_note": "人读公式说明（**唯一渲染项**，进成品的「申报条件」）",
+    "own_field": "自有住房计月字段（如 housing_own_months / house_sqm）",
+    "own_per_month": "自有住房每月 / 每单位分值",
+    "rent_field": "租赁住房计月字段",
+    "rent_per_month": "租赁住房每月分值",
+    "ss_months_field": "社保月数字段",
+    "ss_kinds_field": "参保险种数字段",
+    "ss_per_kind_month": "每险种每月分值",
+    "bonus_field": "其他加分项汇字段（文化技能 / 公积金 / 社会贡献 / 见义勇为等）"
+  },
+  "deadline_fields": {
+    "mode": "受理节奏(rolling滚动受理|annual按年度|fixed固定窗口|once一次性)，可空。无法判定填 null（人读说明一律放 text），闸门第 14 项校验",
+    "text": "人读完整说明（由官方原文归纳）",
+    "cycle": "申报/发放周期说明，可空",
+    "trigger": "起算触发点，如「首次签订劳动合同」，可空",
+    "within_months": "触发后须在多少个月内首次申请；数值或 null",
+    "expire": "政策有效期截止日，严格 YYYY-MM-DD；长期有效/无固定截止/待采集一律填 null",
+    "expire_text": "expire 的原人读表述（仅当 expire 为 null 且官方原文有说明时保留；由 pipeline/split_deadline.py 从旧文本迁入，禁止反向写回 expire）",
+    "exec_status": "执行状态（2026-10-18 新增，解决「文件届满但仍在执行」表达不出来的缺口）。枚举：expired_continuing=文件已届满但仍有当期执行实证(申报/拨付/公示)｜pending_renewal=文件已届满、续期或接续文件未出且无当期实证｜expired_stopped=已届满且确认停止执行。null/缺省=文件在有效期内或无固定有效期，无需标注。硬约束：非空则 expire 必须是规范 YYYY-MM-DD（没届满日期不能说届满）且 exec_note 必填（闸门第 27 项校验）",
+    "exec_note": "执行状态的人读说明（如「文件有效期至 2024-12-31，但市科技局 2026-01-12 仍公示拨付 2884 家」，必须可回溯到 sources 中的官方证据）。exec_status 非空时必填；只写本字段不标 exec_status 视为未标注，闸门第 27 项报错",
+    "recheck_due": "该记录的下一次强制回核日期，严格 YYYY-MM-DD，可空。★ 仅用于「expire 已过或即将过、又不会再产生自然申报窗口」的记录（exec_status 为 expired_continuing / pending_renewal 时必填）：排期表用它当锚点算 D-90/T-30，使「续期缺位」这类缺口**能被机制盯住**（此前 expire=null 的记录永远不进排期，只能靠人工清单）。注意：它只驱动排期提醒，**不参与发版闸门 ③ 阻断判定**（闸门③ 仍只看 expire + 核验回执，避免两套口径）"
+  },
+  "district_light_card_fields": [
+    "适用对象",
+    "补多少(档位)",
+    "什么时间开窗申报",
+    "申报入口",
+    "能否与市级叠加",
+    "来源文号"
+  ],
+  "unified_output": {
+    "profile": "回传入参",
+    "domains": {
+      "<domain>": {
+        "status": "active|framework|deferred|missing",
+        "match/near/channels/...": "各域结果"
+      }
+    },
+    "summary": {
+      "employment_match": [],
+      "hukou_status": "",
+      "overseas_status": ""
+    }
+  }
+}

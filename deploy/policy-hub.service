@@ -1,0 +1,20 @@
+[Unit]
+Description=Shenzhen Policy Hub FastAPI (uvicorn)
+After=network.target
+
+[Service]
+# 部署目录（deploy_linux.sh 默认 /opt/policy-hub，如改路径这里同步改）
+WorkingDirectory=/opt/policy-hub
+# 使用项目内虚拟环境的 python；uvicorn 只监听本机，由 Nginx 反代对外
+ExecStart=/opt/policy-hub/.venv/bin/python -m uvicorn server.app:app --host 127.0.0.1 --port 8000
+Restart=always
+RestartSec=3
+# 安全：非 root 运行
+User=www-data
+Group=www-data
+# 日志走 journalctl：journalctl -u policy-hub -f
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

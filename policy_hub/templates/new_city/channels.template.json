@@ -1,0 +1,28 @@
+{
+ "_填写说明": "channel 通道决策树型域模板（如落户、住房资格）。复制到 domains/cities/<城市码小写>/hukou/channels.json。每条通道用 cond.must 表达硬条件、branch 表达分支(学历/纳税额等)，由 engine/matcher.channel_decide 输出 eligible/near/no；ID=城市码-HK-三位序号。同样要求 *.gov.cn 可溯源、不编造。",
+ "city": "XX",
+ "domain": "hukou",
+ "status": "framework",
+ "channels": [
+  {
+   "id": "XX-HK-001",
+   "city": "XX",
+   "domain": "hukou",
+   "name": "（通道名，照官方）",
+   "valid": "active",
+   "cond": {"must": [{"f": "示例字段", "op": "", "v": "", "label": "（硬条件，照官方）"}]},
+   "branch": [{"when": {"f": "education_level", "op": ">=", "v": 4}, "hit": "（满足该分支时的说明，如‘本科及以上’）"}],
+   "promise": {"text": "（办理时限/承诺，照官方）"},
+   "materials": ["（材料清单）"],
+   "click_steps": ["（官方操作步骤）"],
+   "guide_url": "https://（*.gov.cn）",
+   "sources": ["https://（*.gov.cn 政策原文）"],
+   "special_cases": [],
+   "collect_fields": [],
+   "version": 1,
+   "updated_at": "YYYY-MM-DD",
+   "source_doc": "（官方文号 + 链接）"
+  }
+ ],
+ "note": ""
+}

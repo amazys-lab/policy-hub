@@ -1,0 +1,57 @@
+{
+ "_note": "九个政策方向的形态说明。本仓不附带政策数据，各域 count 恒为 0 —— 你往 domains/cities/<城市码>/<域>/ 填进条目后，条数与字段质量等级由你的数据决定，本文件不需要跟着改。",
+ "employment_startup": {
+  "result_type": "money",
+  "count": 0,
+  "depth": "",
+  "desc": "就业创业补贴：一次性开业补贴、场租补贴、创业担保贷款贴息、带动就业补贴"
+ },
+ "enterprise_support": {
+  "result_type": "money",
+  "count": 0,
+  "depth": "",
+  "desc": "企业用工扶持：稳岗返还、招用重点群体社保补贴、岗位补贴、以工代训、残保金减免"
+ },
+ "tech_enterprise": {
+  "result_type": "money",
+  "count": 0,
+  "depth": "",
+  "desc": "科技企业扶持：高企认定奖补、研发费用加计、专精特新与单项冠军奖励"
+ },
+ "vocational_training": {
+  "result_type": "money",
+  "count": 0,
+  "depth": "",
+  "desc": "职业技能培训：培训补贴、职业技能等级认定补贴、项目制培训"
+ },
+ "inclusive_tax": {
+  "result_type": "money",
+  "count": 0,
+  "depth": "",
+  "desc": "普惠税费减免：小规模纳税人增值税、小型微利企业所得税、个体工商户减半征收、重点群体税收扣减"
+ },
+ "housing": {
+  "result_type": "mixed",
+  "count": 0,
+  "depth": "",
+  "desc": "人才安居住房：购房补贴、租房补贴、人才公寓、配售型保障房（金额型与通道型并存，故为 mixed）"
+ },
+ "hukou": {
+  "result_type": "channel",
+  "count": 0,
+  "depth": "",
+  "desc": "落户通道：应届生、在职人才、留学回国、积分、纳税、随迁，按通道逐条判定，故为 channel"
+ },
+ "gba_tax": {
+  "result_type": "money",
+  "count": 0,
+  "depth": "",
+  "desc": "大湾区个税补贴：珠三角 9 市境外高端人才与紧缺人才的个税差额补贴（地域性域，非珠三角城市可不建此目录）"
+ },
+ "overseas": {
+  "result_type": "mixed",
+  "count": 0,
+  "depth": "",
+  "desc": "人才引进：留学回国人员与海外高层次人才的生活补贴、安家费、创业资助；适用主体与域维度相互独立"
+ }
+}

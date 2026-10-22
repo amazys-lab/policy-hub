@@ -1,0 +1,212 @@
+{
+  "_meta": {
+    "purpose": "导出成品时的枚举中文化映射表。源数据保持英文枚举，成品一律中文——这是 L3 成品校验的第一条硬规则（无英文枚举残留）。",
+    "version": "v1.3",
+    "updated_at": "2026-10-17",
+    "rule": "映射表里没有的值 = 导出时报警并写入 _unmapped.log，绝不静默输出英文",
+    "invariant": "city ⊇ schema.city_code 键集；province ⊇ city 键集。由 tests/test_city_code_consistency.py 守（K1–K3）。改这里必须同步 register_city_codes.py 的 NEW 表。★ identity ⊇ 库内 cond.any_identities 实际取值，由 tests/test_contract_key_sync.py 守（K4）。",
+    "domain_note": "domain / domain_short / domain_desc 三表键集必须**完全相等**（= 9 域）。★ domain = 域**全名**唯一真值源：server/app.py 的 meta.labels、pipeline/export_pdf.py 的域章标题、前端三份副本的 domGrid 卡片标题与 DOM_META 全名都必须由它派生，不得各自硬编码（2026-10-17 收敛前有**四套**硬编码，措辞互不一致：inclusive_tax 被写成「小微企业普惠税费」、overseas 被写成「留学/海外青年人才」，导致同一条政策在不同城市落进不同栏目）。由 tests/test_domain_labels.py 守（DL1–DL5）。★ overseas 的中文名 2026-10-17 由「留学人才」改为「人才引进」——该域实际装的是**不限国籍**的新引进人才入户/生活/安家/创业补贴、应届毕业生补贴、留学回国资助与博士后引进，「留学」以偏概全。"
+  },
+
+  "city": {
+    "SZ": "深圳", "GZ": "广州", "DG": "东莞", "FS": "佛山",
+    "ZS": "中山", "ZH": "珠海", "JM": "江门", "ZQ": "肇庆",
+    "HZ": "惠州", "HG": "杭州", "SU": "苏州", "NJ": "南京",
+    "NB": "宁波", "NN": "南宁", "QZ": "钦州", "WX": "无锡",
+    "CH": "常州", "JX": "嘉兴", "NT": "南通", "HF": "合肥",
+    "CD": "成都", "WH": "武汉", "CQ": "重庆", "QD": "青岛",
+    "CS": "长沙", "XA": "西安", "ZZ": "郑州", "QU": "泉州",
+    "WZ": "温州",
+    "JN": "济南",
+    "FZ": "福州",
+    "SY": "沈阳",
+    "KM": "昆明",
+    "SJZ": "石家庄",
+    "TY": "太原",
+    "HHT": "呼和浩特",
+    "CC": "长春",
+    "HRB": "哈尔滨",
+    "NC": "南昌",
+    "HAK": "海口",
+    "GY": "贵阳",
+    "LS": "拉萨",
+    "LZH": "兰州",
+    "XN": "西宁",
+    "YC": "银川",
+    "WLMQ": "乌鲁木齐",
+    "DL": "大连",
+    "XM": "厦门",
+    "BJ": "北京",
+    "TJ": "天津",
+    "SH": "上海"
+  },
+
+  "province": {
+    "SZ": "广东", "GZ": "广东", "DG": "广东", "FS": "广东",
+    "ZS": "广东", "ZH": "广东", "JM": "广东", "ZQ": "广东", "HZ": "广东",
+    "HG": "浙江", "NB": "浙江", "JX": "浙江", "WZ": "浙江",
+    "SU": "江苏", "NJ": "江苏", "WX": "江苏", "CH": "江苏", "NT": "江苏",
+    "HF": "安徽",
+    "NN": "广西", "QZ": "广西",
+    "CD": "四川", "WH": "湖北", "CQ": "重庆", "QD": "山东",
+    "CS": "湖南", "XA": "陕西", "ZZ": "河南", "QU": "福建",
+    "JN": "山东",
+    "FZ": "福建",
+    "SY": "辽宁",
+    "KM": "云南",
+    "SJZ": "河北",
+    "TY": "山西",
+    "HHT": "内蒙古",
+    "CC": "吉林",
+    "HRB": "黑龙江",
+    "NC": "江西",
+    "HAK": "海南",
+    "GY": "贵州",
+    "LS": "西藏",
+    "LZH": "甘肃",
+    "XN": "青海",
+    "YC": "宁夏",
+    "WLMQ": "新疆",
+    "DL": "辽宁",
+    "XM": "福建",
+    "BJ": "北京",
+    "TJ": "天津",
+    "SH": "上海"
+  },
+
+  "domain": {
+    "employment_startup": "就业创业补贴",
+    "enterprise_support": "企业用工扶持",
+    "gba_tax": "大湾区个税补贴",
+    "housing": "人才安居住房",
+    "hukou": "落户通道",
+    "inclusive_tax": "普惠税费减免",
+    "overseas": "人才引进",
+    "tech_enterprise": "科技企业扶持",
+    "vocational_training": "职业技能培训"
+  },
+
+  "domain_short": {
+    "employment_startup": "就业创业",
+    "enterprise_support": "企业用工",
+    "gba_tax": "大湾区个税",
+    "housing": "人才住房",
+    "hukou": "落户通道",
+    "inclusive_tax": "普惠税费",
+    "overseas": "人才引进",
+    "tech_enterprise": "科技企业",
+    "vocational_training": "技能培训"
+  },
+
+  "domain_desc": {
+    "employment_startup": "个人求职、毕业生、创业者的各类补贴、奖励与创业担保贷款",
+    "enterprise_support": "稳岗返还、招用补贴、残保金减免、以工代训等企业用工扶持（个人亦有可申领项）",
+    "gba_tax": "珠三角 9 市境外高端 / 紧缺人才个税税负差额财政补贴",
+    "housing": "人才安居、配售 / 保障性住房、公租房资格",
+    "hukou": "人才 / 积分 / 政策性落户通道与资格预判",
+    "inclusive_tax": "小型微利所得税、小规模纳税人增值税、个体工商户与重点群体及退役士兵税收扣减等法定减免",
+    "overseas": "新引进人才、应届毕业生、留学回国人员与博士后的入户、安居与创业支持（不限国籍）",
+    "tech_enterprise": "高企认定奖补、研发费用加计、专精特新等（个人亦有可申领项）",
+    "vocational_training": "职业技能等级、专项能力、数字技能、项目制培训补贴"
+  },
+
+  "result_type": {
+    "money": "现金补贴",
+    "channel": "资格通道",
+    "review": "评审认定"
+  },
+
+  "approval_type": {
+    "approval": "核准兑现（符合即享）",
+    "planned": "统筹名额",
+    "competition": "排序竞争",
+    "review": "专家评审",
+    "auto": "免申即享"
+  },
+
+  "channel": {
+    "online": "线上办理",
+    "window": "线下窗口",
+    "mixed": "线上线下均可"
+  },
+
+  "valid": {
+    "active": "现行有效",
+    "exited": "已废止",
+    "renamed": "已更名",
+    "merged": "重复录入·已合并",
+    "superseded": "已被新版替代"
+  },
+
+  "deadline_mode": {
+    "_note": "deadline.mode 的中文兜底。正常路径下「有效期」列优先取 cycle/text（人读长句），只有二者皆空才落到 mode；本表保证落到时也不会印出英文枚举。",
+    "rolling": "常年受理",
+    "fixed": "固定期限",
+    "annual": "按年度申报",
+    "once": "一次性受理"
+  },
+  "exec_status": {
+    "_note": "deadline.exec_status 的中文标签（2026-10-18 新增）。用途：让「文件届满但仍在执行」这一状态**既能被机器判、又能被客户看懂**。映射表缺值一律在导出时报错，绝不静默印英文。",
+    "expired_continuing": "文件已届满·仍在执行",
+    "pending_renewal": "文件已届满·续期未定",
+    "expired_stopped": "文件已届满·已停止执行"
+  },
+
+  "applicant_kind": {
+    "person": "个人",
+    "unit": "用人单位",
+    "entrepreneur": "创业者",
+    "family": "家庭",
+    "overseas": "海外人才"
+  },
+
+  "identity": {
+    "_note": "cond.any_identities 的中文标签**全局唯一表**（2026-10-13 补全）。此前各城 programs.json 各带一份 `identity_tags`，实际只覆盖 15/22 个码、且码名与数据取值不一致（城市表写 `student`/`hk_macao_taiwan_resident`，数据里是 `student_in_school`/`hk_macao_permanent`）→ 展开任一城表都会印出英文枚举。本表以**库内实际取值**为准，断言 tests/test_contract_key_sync.py 守「库内取值 ⊆ 本表」。",
+    "graduating_hardship": "毕业学年困难学生",
+    "grad_2y": "毕业 2 年内高校毕业生",
+    "grad_5y": "毕业 5 年内毕业生（普通高等学校 / 中等职业学校 / 技工院校）",
+    "grad_year": "毕业年度内高校毕业生",
+    "student_in_school": "在校学生（普通高等学校 / 中等职业学校 / 技工院校）",
+    "veteran": "自主就业退役士兵（退役军人）",
+    "employ_difficult": "经人社部门认定的就业困难人员",
+    "registered_unemployed": "登记失业人员",
+    "registered_unemployed_6m": "登记失业半年以上人员",
+    "poverty_pop": "脱贫人口（含防止返贫致贫监测对象）",
+    "zero_employment_family": "零就业家庭登记失业人员",
+    "low_income_family": "享受最低生活保障家庭登记失业人员",
+    "returned_migrant": "返乡创业人员",
+    "prisoner_released": "刑满释放人员",
+    "hk_macao_youth": "港澳青年",
+    "hk_macao_permanent": "香港 / 澳门永久性居民",
+    "hk_admission_scheme": "经香港入境计划（高才通 / 优才 / 专才等）来内地工作的人员",
+    "taiwan_resident": "台湾居民",
+    "foreign_national": "外籍人员（含外国高端人才 A 类）",
+    "overseas_longterm_resident": "取得境外长期 / 永久居留资格的人员",
+    "shenzhen_huji": "深圳户籍人员",
+    "os_founder": "留学人员创业（在国（境）外学习 / 工作满 3 年）"
+  },
+
+  "amount_kind": {
+    "once": "一次性补贴",
+    "text": "按文件规定（据实核算）",
+    "range": "区间补贴",
+    "none": "非现金（资格/通道）",
+    "tiered_hire": "按招用人数分档",
+    "month_x_count": "按月×人数",
+    "once_x_count": "一次性×人数",
+    "per_year_x_count": "按年×人数",
+    "percent_of_base": "按缴费基数比例"
+  },
+
+  "depth": {
+    "L0": "L0 仅目录",
+    "L1": "L1 条件可判",
+    "L2": "L2 可算金额",
+    "L3": "L3 含材料与入口",
+    "L4": "L4 全字段含窗口"
+  },
+
+  "_todo": {
+    "auto": "⚠️ 待确认：契约（contract.md / schema.json）里没有 auto 这个值。当前暂映射为「免申即享」，但抽查存量记录可见部分条目明显需申报，疑为误标。接入真实数据后请复核该值的语义。"
+  }
+}

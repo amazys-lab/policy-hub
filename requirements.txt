@@ -1,0 +1,22 @@
+﻿# 核心服务（server/ 运行必需）
+fastapi
+uvicorn
+pydantic
+jinja2
+
+# 数据管线（pipeline/ 导出与发布）
+openpyxl
+
+# 采集工具（policy_hub/collector/tools/ 与链接核验）
+requests
+beautifulsoup4
+lxml
+
+# MCP Server（mcp_server/，给 Claude Code / Cursor / WorkBuddy 等 agent 调用）
+# 2.x 起 FastMCP 改名 MCPServer（mcp.server.mcpserver），本仓按 2.x 写
+mcp>=2.0
+
+# 可选：C 端 PDF 导出（pipeline/export_pdf.py）
+# pymupdf
+# 可选：浏览器渲染类采集（部分站点需要 playwright）
+# playwright

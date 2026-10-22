@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>{{ meta.title }}</title>
+<style>
+@page { size: A4; margin: 15mm 13mm 18mm; }
+* { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: "Microsoft YaHei", "微软雅黑", "PingFang SC", "Hiragino Sans GB", sans-serif;
+  font-size: 9.4pt; line-height: 1.48; color: #1F2A37;
+  background: #fff;
+}
+a { color: #1F3864; text-decoration: none; }
+b, strong { font-weight: 700; }
+
+/* ── 封面 ─────────────────────────────────────────── */
+.cover { min-height: 262mm; display: flex; flex-direction: column; page-break-after: always; }
+.cv-top { flex: 1; }
+.cv-band {
+  background: #1F3864; color: #fff; border-radius: 3mm;
+  padding: 14mm 12mm 12mm; position: relative; overflow: hidden;
+}
+.cv-band::after {
+  content: ""; position: absolute; right: -18mm; top: -18mm;
+  width: 62mm; height: 62mm; border-radius: 50%;
+  background: rgba(255,255,255,.06);
+}
+.cv-kicker { font-size: 9pt; letter-spacing: .32em; opacity: .82; margin-bottom: 7mm; }
+.cv-band h1 { margin: 0; font-size: 27pt; line-height: 1.28; letter-spacing: .01em; font-weight: 700; }
+.cv-sub { margin: 5mm 0 0; font-size: 10.5pt; opacity: .9; letter-spacing: .04em; }
+
+.cv-stats { display: flex; gap: 4mm; margin-top: 7mm; }
+.cv-stat {
+  flex: 1; border: .4pt solid #DCE3EF; border-radius: 2mm;
+  padding: 5mm 3mm; text-align: center; background: #F7F9FC;
+}
+.cv-stat b { display: block; font-size: 19pt; color: #1F3864; line-height: 1.2; letter-spacing: -.01em; }
+.cv-stat span { display: block; font-size: 8.4pt; color: #6B7A90; margin-top: 1.6mm; }
+
+.cv-meta { margin-top: 8mm; border-top: .4pt solid #E4E9F2; }
+.cv-meta .r { display: flex; padding: 2.6mm 0; border-bottom: .4pt solid #EDF1F7; }
+.cv-meta .k { width: 24mm; flex-shrink: 0; color: #6B7A90; font-size: 9pt; }
+.cv-meta .v { flex: 1; font-size: 9.2pt; }
+
+.cv-use { margin-top: 8mm; background: #FBF7EE; border-left: 1mm solid #C89B3C; padding: 4.5mm 5mm; border-radius: 0 2mm 2mm 0; }
+.cv-use h3 { margin: 0 0 2.5mm; font-size: 9.6pt; color: #8A6A1F; letter-spacing: .06em; }
+.cv-use li { font-size: 9pt; margin-bottom: 1.4mm; }
+.cv-use ul { margin: 0; padding-left: 5mm; }
+.cv-foot { margin-top: auto; padding-top: 6mm; border-top: .4pt solid #E4E9F2; font-size: 7.8pt; color: #7C889C; line-height: 1.6; }
+.cv-foot b { color: #5B6678; }
+
+/* ── 目录（2026-10-12 改版：逐条罗列 → 章节导航）───────
+   旧版把每一条政策都列进目录：385 条占 7 页、255 条占 5 页，
+   读者一翻开就是 7 页 8.4pt 小字；且多列容器在分页时被整块推走，
+   第 2 页只剩「目 录」标题变成空白页。现改为「章节导航」：一行一章。 */
+.toc { page-break-after: always; }
+.sec-title {
+  font-size: 15pt; color: #1F3864; margin: 0 0 5mm; padding-bottom: 2.6mm;
+  border-bottom: .9pt solid #1F3864; letter-spacing: .12em;
+}
+.toc-nav { margin-top: 2mm; }
+.toc-row {
+  display: flex; align-items: baseline; gap: 3.4mm;
+  padding: 2.8mm 0; border-bottom: .4pt solid #EDF1F7;
+  break-inside: avoid; page-break-inside: avoid;
+}
+.toc-idx { flex: 0 0 7mm; font-size: 9.6pt; font-weight: 700; color: #C3CBD8; }
+.toc-range {
+  flex: 0 0 21mm; font-size: 8.4pt; color: #8A94A6; letter-spacing: .01em;
+  font-variant-numeric: tabular-nums;
+}
+.toc-name { flex: 0 0 32mm; font-size: 11.4pt; font-weight: 700; color: #1F3864; }
+.toc-cnt { flex: 0 0 14mm; font-size: 8.8pt; color: #8A6A1F; }
+.toc-desc { flex: 1; font-size: 8.8pt; color: #6B7A90; }
+.toc-hint {
+  margin-top: 8mm; font-size: 8.6pt; color: #5B6678; line-height: 1.8;
+  background: #F7F9FC; border-left: 1mm solid #1F3864;
+  padding: 4mm 4.6mm; border-radius: 0 2mm 2mm 0;
+}
+.toc-hint b { color: #1F3864; }
+/* 目录 · 多城产品双索引（2026-10-12「城市优先」改版）───────
+   主索引 = 城市（读者先选城市），次索引 = 补贴类别（网格块）。
+   上一版这里是「各市条目数」一句速览；现在城市升级为**可定位的索引** ——
+   每行给出条数 + 编号区间，读者据此直接翻到该城，不必先看类别再逐条筛城市。 */
+.idx-hd {
+  margin: 6mm 0 1.2mm; font-size: 9.8pt; font-weight: 700; color: #1F3864;
+  letter-spacing: .06em; break-after: avoid; page-break-after: avoid;
+}
+.idx-hd:first-of-type { margin-top: 1mm; }
+.toc-row .toc-secs { flex: 1; font-size: 7.8pt; color: #6B7A90; line-height: 1.35; }
+.toc-dom {
+  display: flex; flex-wrap: wrap; gap: 1.6mm 2.2mm;
+  break-inside: avoid; page-break-inside: avoid;
+}
+.toc-dom-it {
+  font-size: 8.2pt; color: #47536A; background: #F1F5FA;
+  border-radius: 1mm; padding: .9mm 2.2mm;
+}
+.toc-dom-it b { color: #1F3864; margin-left: 1.6mm; font-size: 8.4pt; }
+.toc-dom-it i { font-style: normal; color: #8A94A6; font-size: 7.4pt; margin-left: 1.2mm; }
+
+/* ── 章节 ─────────────────────────────────────────── */
+.chap { margin-top: 6mm; }
+.chap-hd {
+  break-after: avoid; page-break-after: avoid;
+  display: flex; align-items: baseline; gap: 3mm;
+  border-left: 1.4mm solid #1F3864; padding: 1mm 0 1mm 3.4mm;
+  margin: 0 0 3.6mm;
+}
+.chap-hd h2 { margin: 0; font-size: 13pt; color: #1F3864; letter-spacing: .02em; }
+.chap-hd .cnt { font-size: 8.6pt; color: #8A94A6; }
+.chap-hd .range { font-size: 8pt; color: #A9B3C4; font-variant-numeric: tabular-nums; }
+.chap-hd .desc { font-size: 8.4pt; color: #6B7A90; margin-left: auto; }
+
+/* 城市章（多城产品，2026-10-12）：一级章 = 城市。做法是把章头做"重" ——
+   字号加大、色条加粗、上方留白拉开，读者翻页时一眼认出"换城市了"。
+   ⚠️ 章头里的「编号 X–Y」同时是 **PDF 书签的定位锚点**（见 export_pdf.write_bookmarks）：
+      目录里的区间不带「编号」二字，所以这个串全文唯一；改措辞会让书签静默失锚。 */
+.chap.city-chap { margin-top: 8mm; }
+.chap-hd.city { border-left-width: 1.8mm; padding: 1.4mm 0 1.4mm 3.8mm; margin-bottom: 1.4mm; }
+.chap-hd.city h2 { font-size: 16pt; }
+.chap-hd.city .sec-line { font-size: 7.8pt; color: #6B7A90; margin-left: auto; }
+
+/* 城市章内的类别小节：比章头轻一档（金调 + 细色条），形成「城市 > 类别」两级视觉 */
+.sec-hd {
+  break-after: avoid; page-break-after: avoid;
+  display: flex; align-items: baseline; gap: 2.6mm;
+  border-left: 1mm solid #C89B3C; padding: .8mm 0 .8mm 3mm;
+  margin: 5mm 0 2.6mm;
+}
+.sec-hd h3 { margin: 0; font-size: 11pt; color: #8A6A1F; letter-spacing: .02em; }
+.sec-hd .cnt { font-size: 8.2pt; color: #8A94A6; }
+.sec-hd .range { font-size: 7.8pt; color: #A9B3C4; font-variant-numeric: tabular-nums; }
+.sec-hd .desc { font-size: 7.8pt; color: #6B7A90; margin-left: auto; }
+
+/* ── 卡片 ─────────────────────────────────────────── */
+.card {
+  break-inside: avoid; page-break-inside: avoid;
+  border: .4pt solid #DDE4EE; border-left: 1mm solid #1F3864;
+  border-radius: 0 2mm 2mm 0; padding: 2.4mm 3.4mm 2.6mm; margin-bottom: 2.4mm;
+  background: #fff;
+}
+.card-hd { display: flex; align-items: baseline; gap: 2.2mm; margin-bottom: 1.2mm; }
+.c-no {
+  flex-shrink: 0; font-size: 7.6pt; font-weight: 700; color: #fff;
+  background: #1F3864; border-radius: 1mm; padding: .3mm 1.6mm; line-height: 1.5;
+}
+.c-name { font-size: 10.2pt; font-weight: 700; color: #16233A; flex: 1; line-height: 1.36; }
+/* 方案 B：卡片适用范围徽标（与深蓝「编号」区分，用金调） */
+.c-city {
+  flex-shrink: 0; font-size: 7.2pt; color: #8A6A1F; background: #FBF3E2;
+  border: .3pt solid #EDDDBB; border-radius: 1mm; padding: .3mm 1.6mm; white-space: nowrap;
+}
+.c-tag {
+  flex-shrink: 0; font-size: 7.2pt; color: #1F3864; background: #EDF2FA;
+  border-radius: 1mm; padding: .4mm 1.6mm; white-space: nowrap;
+}
+.c-std { font-size: 8.4pt; color: #7C889C; margin: -0.6mm 0 2mm 0; }
+.c-meta { font-size: 8pt; color: #6B7A90; margin-bottom: 1.3mm; padding-bottom: 1.1mm; border-bottom: .4pt dashed #E4E9F2; }
+.c-meta i { font-style: normal; color: #A9B3C4; margin: 0 .8mm; }
+.row { display: flex; margin-bottom: 0.75mm; }
+.row .lb {
+  width: 14mm; flex-shrink: 0; font-size: 8.2pt; color: #6B7A90;
+  padding-top: .2mm; letter-spacing: .02em;
+}
+.row .vl { flex: 1; min-width: 0; font-size: 8.9pt; word-break: break-word; }
+.row .vl.amt { color: #B3271E; font-weight: 700; }
+.ol { margin: 0; padding: 0; list-style: none; }
+.ol li { padding-left: 5.6mm; text-indent: -5.6mm; }
+.ol .n { display: inline-block; width: 5.6mm; color: #8A94A6; }
+.steps { color: #3A465C; }
+.steps .s { color: #1F3864; font-weight: 700; }
+.lnk { color: #1F3864; text-decoration: underline; text-underline-offset: .6mm; }
+.url { font-size: 6.5pt; color: #98A3B6; word-break: break-all; line-height: 1.3; margin-top: .4mm; }
+.src { font-size: 8.1pt; color: #5B6678; display: block; }
+
+/* ── 来源链接（2026-10-14 重做）────────────────────────
+   旧版是「查看原文 ↗ / 办事入口 ↗」两个按钮：热区只有 47×12pt（约 1.6cm×0.4cm），
+   手机上几乎点不中；且「办事入口」**不显示 URL** ⇒ 读者连复制都做不到。
+   现改为 **URL 本体即链接文本**：
+     · 可点——热区 = 整条 URL，比按钮大 5–10 倍；
+     · 可复制——文本就是完整地址，任何阅读器/打印件都能用；
+     · 原文与办理入口**并列显示**，不再只有原文才有地址。 */
+.lk { display: flex; align-items: baseline; margin-top: .55mm; }
+.lk .lkt {
+  width: 11.5mm; flex-shrink: 0; font-size: 6.8pt;
+  color: #6B7A90; letter-spacing: .02em;
+}
+.lk a {
+  flex: 1; min-width: 0; font-size: 6.6pt; line-height: 1.34;
+  color: #1F3864; text-decoration: underline; text-underline-offset: .5mm;
+  word-break: break-all;
+}
+
+/* ── 末页 ─────────────────────────────────────────── */
+.endpage { break-before: page; page-break-before: always; margin-top: 6mm; }
+.endpage h2 { font-size: 13pt; color: #1F3864; border-bottom: .9pt solid #1F3864; padding-bottom: 2.4mm; margin: 0 0 4mm; }
+.endpage h3 { font-size: 10pt; color: #16233A; margin: 5mm 0 2mm; }
+.endpage p, .endpage li { font-size: 9pt; color: #3A465C; }
+.endpage ol, .endpage ul { padding-left: 5mm; margin: 0 0 2mm; }
+.endpage li { margin-bottom: 1.2mm; }
+.disc {
+  margin-top: 6mm; background: #FDF6F6; border: .4pt solid #F0D8D8;
+  border-radius: 2mm; padding: 4.5mm 5mm;
+}
+.disc h3 { margin-top: 0; color: #B3271E; }
+.disc p { font-size: 8.8pt; color: #6B4A4A; margin: 0 0 2mm; }
+.disc p:last-child { margin-bottom: 0; }
+
+/* ── 页脚（2026-10-12 移除 HTML 页脚）──────────────────
+   旧版用 `.runfoot { position: fixed }` 想让页脚每页重复，实测反效果：
+   Chrome 打印时它并非固定在页脚区，而是叠加到页面顶部压住正文，
+   且负值 `bottom: -6mm` 让位置随打印边距漂移（读者看到的是「顶部一行灰字」）。
+   现改为**生成 PDF 后用 PyMuPDF 逐页盖章**（见 export_pdf.stamp_footer）：
+   位置按纸张坐标精确控制，不参与正文流，也不受分页影响。 */
+
+@media screen {
+  body { background: #E9EDF3; padding: 14mm 0; }
+  .cover, .toc, .chap, .endpage { width: 210mm; margin: 0 auto 8mm; background: #fff; padding: 15mm 13mm; box-shadow: 0 1mm 5mm rgba(20,40,80,.12); }
+  .cover { min-height: 0; padding-bottom: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ 封面 ══ -->
+<section class="cover">
+  <div class="cv-top">
+    <div class="cv-band">
+      <div class="cv-kicker">个 人 办 事 指 南 · 补 贴 清 单</div>
+      <h1>{{ meta.title }}</h1>
+      <p class="cv-sub">{{ meta.subtitle }}</p>
+    </div>
+
+    <div class="cv-stats">
+      <div class="cv-stat"><b>{{ meta.count }}</b><span>政策条目</span></div>
+      <div class="cv-stat"><b>{{ meta.stat2_value }}</b><span>{{ meta.stat2_label }}</span></div>
+      <div class="cv-stat"><b>{{ meta.stat3_value }}</b><span>{{ meta.stat3_label }}</span></div>
+    </div>
+
+    <table class="cv-meta" style="width:100%;border-collapse:collapse;">
+      <tr class="r"><td class="k">覆盖范围</td><td class="v">{{ meta.scope }}</td></tr>
+      <tr class="r"><td class="k">数据来源</td><td class="v">{{ meta.sources }}</td></tr>
+{% if meta.merge_note %}      <tr class="r"><td class="k">归并说明</td><td class="v">{{ meta.merge_note }}</td></tr>
+{% endif %}{% if meta.scope_note %}      <tr class="r"><td class="k">适用范围</td><td class="v">{{ meta.scope_note }}</td></tr>
+{% endif %}      <tr class="r"><td class="k">数据时点</td><td class="v">{{ meta.data_asof }}（来源条目最新核验日）　·　整理日期 {{ meta.date }}</td></tr>
+      <tr class="r"><td class="k">数据版本</td><td class="v">{{ meta.version }}</td></tr>
+      <tr class="r"><td class="k">字段口径</td><td class="v">补贴金额 · 申报条件 · 申报材料 · 办理方式 · 办理步骤 · 申报窗口与有效期 · 官方来源</td></tr>
+    </table>
+
+    <div class="cv-use">
+      <h3>使 用 说 明</h3>
+      <ul>
+{% if meta.city_index %}        <li>本清单按<strong>城市</strong>分章，每座城市内再按<strong>补贴类别</strong>分节；同一条政策只归入一座城市（以发布该政策的地方为准）。</li>
+{% else %}        <li>本清单按<strong>补贴类别</strong>分章，每类下逐条列出；同一条只归入一个类别。</li>
+{% endif %}{% if meta.scope_note %}        <li>每条标注<strong>适用范围</strong>：标「某市」的是该市本级政策，标「某省全省」「全国通用」的是上级政策 —— 上级政策各省市会各自发布一次、条目内容相同，本清单按城市分别列出。</li>
+{% endif %}
+        <li>每条给出<strong>七项关键信息</strong>：补贴金额、申报条件、申报材料、办理方式、办理步骤、申报窗口与有效期、官方来源。</li>
+        <li>每条都印出<strong>原文</strong>与<strong>办理入口</strong>的完整网址（<strong>网址本身即可点击</strong>）。电子版点网址直接跳转；若阅读器或手机 App 不支持点击，<strong>复制该网址</strong>粘到浏览器打开即可。纸质版可照抄网址访问。</li>
+        <li>电子版可用阅读器<strong>左侧书签栏</strong>直接跳转（多城版按「城市 → 类别」两级）；纸质版先看目录定位城市，再按「申报条件」逐项自查。</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="cv-foot">
+    <b>免责声明：</b>本清单基于政府部门公开发布的政策文件整理，整理日期 {{ meta.date }}，数据版本 {{ meta.version }}。
+    补贴标准、申报条件、申报窗口与经办口径<strong>一律以官方最新文件及经办窗口答复为准</strong>；
+    标注为「规则估算」的金额系按文件口径推算。    本产品仅提供<strong>公开信息整理服务</strong>，
+    不提供申报代理、不承诺审批结果、不构成任何法律或投资建议。
+  </div>
+</section>
+<!-- ══ 目录 ══
+     多城产品：双索引（主=城市，次=补贴类别）—— 读者先选城市，再在城内按类别找。
+     单城产品：保持「按类别一行一章」。
+     ⚠️ 目录里的编号区间**不带「编号」二字**，正文章头才带 —— 这个差异让章头的
+        「编号 X–Y」在全文唯一，成为 PDF 书签的定位锚点（见 export_pdf.write_bookmarks）。 -->
+<section class="toc">
+  <h2 class="sec-title">目 录</h2>
+{% if meta.city_index %}
+  <div class="idx-hd">按城市查找</div>
+  <div class="toc-nav">
+    {% for c in meta.city_index %}
+    <div class="toc-row">
+      <span class="toc-idx">{{ loop.index }}</span>
+      <span class="toc-name">{{ c.name }}</span>
+      <span class="toc-cnt">{{ c.n }} 条</span>
+      <span class="toc-range">{{ c.no_from }}–{{ c.no_to }}</span>
+      <span class="toc-secs">{{ c.sec_line }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="idx-hd">按补贴类别查找</div>
+  <div class="toc-dom">
+    {% for d in meta.domain_index %}<span class="toc-dom-it">{{ d.short }}<b>{{ d.n }} 条</b><i>{{ d.city_n }} 城</i></span>{% endfor %}
+  </div>
+{% else %}
+  <div class="toc-nav">
+    {% for ch in chapters %}
+    <div class="toc-row">
+      <span class="toc-idx">{{ loop.index }}</span>
+      <span class="toc-name">{{ ch.name }}</span>
+      <span class="toc-cnt">{{ ch.count }} 条</span>
+      <span class="toc-range">{% if ch.no_from %}{{ ch.no_from }}–{{ ch.no_to }}{% endif %}</span>
+      <span class="toc-desc">{{ ch.desc }}</span>
+    </div>
+    {% endfor %}
+  </div>
+{% endif %}
+  <p class="toc-hint">{% if meta.city_index %}全册共 <b>{{ meta.count }}</b> 条，按<b>城市</b>分章、每座城市内再按<b>补贴类别</b>分节。先在上表找到你要去的城市（右侧列出该城的类别分布），翻到该城章后按小节查找；正文每条带编号，章头给出编号区间。{% else %}全册共 <b>{{ meta.count }}</b> 条，按<b>补贴类别</b>分章编排，正文每条带编号（首条 <b>{{ chapters[0].no_from if chapters else "" }}</b>）。建议先按「申报条件」逐项自查，符合条件再看「补贴金额」与「办理步骤」。{% endif %}{% if meta.scope_note %}各条所标<b>适用范围</b>的含义见封面「使用说明」。{% endif %}</p>
+</section>
+
+<!-- ══ 明细 ══ -->
+{% macro card(c) %}
+  <div class="card">
+    <div class="card-hd">
+      <span class="c-no">{{ c.no }}</span>
+      <span class="c-name">{{ c.name }}</span>
+      {% if c.scope_label %}<span class="c-city">{{ c.scope_label }}</span>{% endif %}
+      <span class="c-tag">{{ c.tag }}</span>
+    </div>
+    {% if c.meta_line %}<div class="c-meta">{{ c.meta_line }}</div>{% endif %}
+
+    {% if c.amount %}<div class="row"><div class="lb">补贴金额</div><div class="vl{% if c.amount_is_money %} amt{% endif %}">{{ c.amount }}</div></div>{% endif %}
+    {% if c.conditions %}<div class="row"><div class="lb">申报条件</div><div class="vl">{{ c.conditions }}</div></div>{% endif %}
+    {% if c.materials_line %}<div class="row"><div class="lb">申报材料</div><div class="vl">{{ c.materials_line }}</div></div>{% endif %}
+    {% if c.channel_line %}<div class="row"><div class="lb">办理方式</div><div class="vl">{{ c.channel_line }}</div></div>{% endif %}
+    {% if c.steps_line %}<div class="row"><div class="lb">办理步骤</div><div class="vl steps">{{ c.steps_line }}</div></div>{% endif %}
+    {% if c.timing %}<div class="row"><div class="lb">申报窗口</div><div class="vl">{{ c.timing }}</div></div>{% endif %}
+    {% if c.source_doc or c.url or c.entry %}
+    <div class="row"><div class="lb">官方来源</div><div class="vl">
+      {% if c.source_doc %}<div class="src">{{ c.source_doc }}</div>{% endif %}
+      {% if c.url %}<div class="lk"><span class="lkt">原文</span><a href="{{ c.url }}">{{ c.url }}</a></div>{% endif %}
+      {% if c.entry %}<div class="lk"><span class="lkt">办理入口</span><a href="{{ c.entry }}">{{ c.entry }}</a></div>{% endif %}
+    </div></div>
+    {% endif %}
+  </div>
+{% endmacro %}
+
+{% for ch in chapters %}
+<section class="chap{% if ch.is_city %} city-chap{% endif %}">
+{% if ch.is_city %}
+  <div class="chap-hd city">
+    <h2>{{ ch.name }}</h2>
+    <span class="cnt">{{ ch.count }} 条</span>
+    <span class="range">编号 {{ ch.no_from }}–{{ ch.no_to }}</span>
+    <span class="sec-line">{{ ch.sec_line }}</span>
+  </div>
+  {% for sec in ch.sections %}
+  <div class="sec-hd">
+    <h3>{{ sec.name }}</h3>
+    <span class="cnt">{{ sec.count }} 条</span>
+    <span class="range">编号 {{ sec.no_from }}–{{ sec.no_to }}</span>
+    <span class="desc">{{ sec.desc }}</span>
+  </div>
+  {% for c in sec.cards %}{{ card(c) }}{% endfor %}
+  {% endfor %}
+{% else %}
+  <div class="chap-hd">
+    <h2>{{ ch.name }}</h2>
+    <span class="cnt">{{ ch.count }} 条</span>
+    <span class="range">编号 {{ ch.no_from }}–{{ ch.no_to }}</span>
+    <span class="desc">{{ ch.desc }}</span>
+  </div>
+  {% for c in ch.cards %}{{ card(c) }}{% endfor %}
+{% endif %}
+</section>
+{% endfor %}
+
+<!-- ══ 末页 ══ -->
+<section class="endpage">
+  <h2>使用须知与免责声明</h2>
+
+  <h3>一、本清单包含什么</h3>
+  <p>本清单收录 <strong>{{ meta.scope }}</strong> 范围内、<strong>{{ meta.person_scope }} 可以申报</strong>的补贴与扶持政策，
+     共 <strong>{{ meta.count }}</strong> 条{% if meta.city_index %}，覆盖 <strong>{{ meta.city_count }}</strong> 座城市、归入 {{ meta.stat3_value }} 个类别{% else %}，归入 {{ meta.chapter_count }} 个类别{% endif %}。企业专项政策不在本清单范围内。</p>
+  <p style="font-size:8.6pt;color:#6B7A90;">
+  {% for ch in chapters %}· {{ ch.name }} {{ ch.count }} 条{% if not loop.last %}　{% endif %}{% endfor %}
+  </p>
+
+  <h3>二、怎么用最省事</h3>
+  <ol>
+{% if meta.city_index %}    <li>先在目录「按城市查找」里定位你要去的城市（表格给出该城条数与编号区间），翻到该城章。</li>
+    <li>该城章内按<strong>补贴类别</strong>分成小节（就业创业 / 技能培训 / 落户 / 人才住房 / 人才引进 / 个税 / 税费…），逐节看。</li>
+{% else %}    <li>先看目录定位类别（就业创业 / 技能培训 / 落户 / 人才住房 / 人才引进 / 个税 / 税费…）。</li>
+{% endif %}    <li>按「申报条件」逐项自查，符合的先看「补贴金额」判断值不值得办。</li>
+    <li>准备「申报材料」，按「办理方式」走线上或线下渠道。</li>
+    <li>动手前再点一次「官方来源」链接，确认政策是否仍在有效期、标准是否更新。</li>
+  </ol>
+
+  <h3>三、三条重要提醒</h3>
+  <ul>
+    <li><strong>以官方为准。</strong>政策会调整，本清单是某个时点的快照，最终以官方最新文件和经办窗口答复为准。</li>
+    <li><strong>金额多为文件口径。</strong>「据实核算」「按基数比例」「分档」类金额需按个人实际情况测算，本清单只给文件表述。</li>
+    <li><strong>不代理、不承诺。</strong>本清单不提供申报代理服务，也不对审批结果作任何承诺；请警惕任何对审批结果作出保证、或自称有特殊办理渠道的第三方。</li>
+  </ul>
+
+  <div class="disc">
+    <h3>免责声明</h3>
+    <p>1. 本清单数据来源于 {{ meta.sources }}，整理日期 {{ meta.date }}，数据版本 {{ meta.version }}。数据经结构化整理与质量校验，但<strong>不代表官方发布</strong>。</p>
+    <p>2. 补贴标准、申报条件、申报窗口、经办部门及联系方式可能因政策调整而变化，<strong>一律以官方最新文件与经办窗口答复为准</strong>。因政策变动、理解偏差或使用不当造成的任何损失，本清单提供方不承担责任。</p>
+    <p>3. 本产品仅提供<strong>公开政策信息整理服务</strong>，不构成法律、财税或投资建议，不代理任何申报事项，不对申报结果作任何承诺。</p>
+    <p>4. 本清单仅供使用者个人学习与参考使用，请勿批量传播。</p>
+  </div>
+
+  <h3>数据说明</h3>
+  <p style="font-size:8.6pt;color:#6B7A90;">
+    数据版本 {{ meta.version }}　|　数据时点 {{ meta.data_asof }}　|　整理日期 {{ meta.date }}　|　
+    条目数 {{ meta.count }}　|　覆盖 {{ meta.scope }}<br>
+    深度分布：{{ meta.depth_line }}
+  </p>
+</section>
+
+<!-- 页脚改由 export_pdf.stamp_footer() 在 PDF 生成后逐页盖章（见 <style> 注释） -->
+
+</body>
+</html>

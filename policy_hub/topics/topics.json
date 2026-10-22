@@ -1,0 +1,5 @@
+{
+  "updated_at": "2026-10-22",
+  "note": "专题包=跨业务域的政策ID清单，只存ID不复制政策正文；同一政策可进多个包。本仓不附带政策数据，topics 初始为空——接入数据后可用 pipeline/build_topics.py 生成，或按同样结构手写（policy_ids 必须是 domains 下真实存在的条目 ID）。",
+  "topics": []
+}

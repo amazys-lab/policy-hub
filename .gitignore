@@ -1,0 +1,29 @@
+_push.bat
+_tools/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+.venv/
+venv/
+env/
+
+.env
+*.log
+
+server/policy.db
+server/policy.db-journal
+server/leads.json
+server/api_keys.json
+
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# 本地归档（真实数据备份 / 一次性产物），不入库
+_archive/
+
+# 链接降级的运行产物（每次跑 link_verify 生成，不入库）
+pipeline/_link_degrade_report.md
